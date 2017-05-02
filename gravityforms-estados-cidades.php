@@ -92,7 +92,7 @@ class EstadosCidades
 
 	function get_data()
 	{
-		return json_decode( file_get_contents( plugins_url( 'data.json', __FILE__ ) ), true )['estados'];
+		return json_decode( file_get_contents( plugin_dir_path( __FILE__ ) . 'data.json' ), true )['estados'];
 	}
 }
 
