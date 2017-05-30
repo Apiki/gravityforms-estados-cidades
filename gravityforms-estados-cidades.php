@@ -56,7 +56,7 @@ class EstadosCidades
 		}
 
 		foreach ( $form['fields'] as &$field ) {
-			if ( strpos( $field->cssClass, 'cidade' ) !== false ) {
+			if ( strpos( $field->cssClass, 'cidade' ) !== false && isset( $_POST[ "input_{$field_id}" ] ) ) {
 				$field->choices = $this->get_cidades_choices( $_POST[ "input_{$field_id}" ] );
 			}
 		}
