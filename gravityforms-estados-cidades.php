@@ -23,6 +23,7 @@ class EstadosCidades
 		add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts' ) );
 		add_action( 'gform_admin_pre_render', array( &$this, 'pre_render' ) );
 		add_action( 'gform_pre_render', array( &$this, 'pre_render' ) );
+		add_action( 'gform_pre_submission', array( &$this, 'pre_submission' ) );
 	}
 
 	public function enqueue_scripts()
@@ -44,6 +45,15 @@ class EstadosCidades
 		);
 	}
 
+	public function pre_submission( $form )
+	{
+		foreach ( $form['fields'] as $field ) {
+			if ( strpos( $field->cssClass, 'estado' ) !== false ) {
+				setcookie( "gf_{$form['id']}_{$field["id"]}", $_POST[ "input_{$field["id"]}" ], time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl() );
+			}
+		}
+	}
+
 	public function pre_render( $form )
 	{
 		$field_id = null;
@@ -56,8 +66,8 @@ class EstadosCidades
 		}
 
 		foreach ( $form['fields'] as &$field ) {
-			if ( strpos( $field->cssClass, 'cidade' ) !== false && isset( $_POST[ "input_{$field_id}" ] ) ) {
-				$field->choices = $this->get_cidades_choices( $_POST[ "input_{$field_id}" ] );
+			if ( strpos( $field->cssClass, 'cidade' ) !== false ) {
+				$field->choices = $this->get_cidades_choices( $form['id'], $field_id );
 			}
 		}
 
@@ -75,8 +85,9 @@ class EstadosCidades
 		return $choices;
 	}
 
-	public function get_cidades_choices( $sigla )
+	public function get_cidades_choices( $form_id, $state_id )
 	{
+		$sigla     = $this->get_current_state( $form_id, $state_id );
 		$choices[] = array( 'value' => '', 'text' => 'Selecione' );
 
 		foreach ( $this->data as $value ) {
@@ -88,6 +99,19 @@ class EstadosCidades
 		}
 
 		return $choices;
+	}
+
+	public function get_current_state( $form_id, $field_id )
+	{
+		if ( isset( $_POST[ "input_{$field_id}" ] ) ) {
+			return $_POST[ "input_{$field_id}" ];
+		}
+
+		if ( isset( $_COOKIE[ "gf_{$form_id}_{$field_id}" ] ) ) {
+			return $_COOKIE[ "gf_{$form_id}_{$field_id}" ];
+		}
+
+		return false;
 	}
 
 	function get_data()

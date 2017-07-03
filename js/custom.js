@@ -7,8 +7,11 @@
 			$( 'body' ).on( 'change', '.estado select', this._onChangeState.bind( this ) );
 		},
 		_onChangeState: function(e) {
+ 			this.renderCities( e.currentTarget.value );
+		},
+		renderCities: function(state) {
 			var select = $( '.cidade select' )
-			  , cities = this.getCities( e.currentTarget.value )
+			  , cities = this.getCities( state )
 			;
 
 			select.empty();
